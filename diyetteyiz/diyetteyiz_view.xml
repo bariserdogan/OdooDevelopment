@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding= "utf-8"?>
+
+<openerp>
+    <data>
+    <record id= "diyetteyiz_product_template_tree_view" model= "ir.ui.view">
+    <!-- field tagının referens kısmında inherit ettiğimiz 
+    	template view adını belirtiyoruz
+    -->
+        <field name="inherit_id" ref="product.product_template_tree_view" /> 
+        <!--Modelimizi field name özelliğine "model"
+            yazarak belirtiyoruz-->
+        <field name="model">product.template</field>
+        <field name="arch" type="xml">
+             <field name="categ_id" position="before">
+                 <field name="calories"/>
+    	     <!-- calories sütununun categ_id sütunundan sonra 
+                      geleceğini belirtiyoruz.-->
+                 <field name="servingsize"/>
+                 <field name="nutrition_score"/>
+                 <field name="lastupdated"/>
+                 
+                 
+             </field>
+        </field>
+    </record>
+    <record id= "diyetteyiz_product_template_form_view" model= "ir.ui.view">
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="model">product.template</field>
+        <field name="arch" type="xml">
+             <field name="list_price" position="after">
+    	          <field name="calories"/>
+    	          <field name="nutrition_score"/>
+    	          <field name="servingsize"/>
+                  <field name="lastupdated"/>
+                  
+                  
+             </field>
+             <page name="sales" position="after">
+                <page name="nutrients" string="Nutrients">
+                    <field name="nutrient_ids" widget="one2many_list">
+                        <tree editable="bottom">
+                            <field name="nutrient_id"/>
+                            <field name="value"/>
+                            <field name="uom"/>
+                            <field name="dailypercent"/>            
+                        </tree>
+                    </field>
+                </page>
+             </page>
+        </field>
+    </record>
+    
+    <!--Yeni bir "Diyet Items" adında menü elemanı ekliyoruz-->
+    <record id="product.product_template_action_diyetteyiz" model="ir.actions.act_window">
+        <field name="name">Diyet Items</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_type">form</field>
+        <field name="view_id" ref="product.product_template_tree_view"/>
+        <field name="context">{"search_default_filter_to_sell":1}</field>
+        <!--Diyet Item sayfasında yeni bir kayıt eklenirken dietItem mı? seçeneğinin otomatik olarak True şeklinde işaretlenmesi için--> 
+        <field name="domain">[('categ_id.name','=','Diet Items')]</field>
+        <!--Yeni bir filtre(domain) alanı ekliyoruz. Kategori adı Diet Items olan kayıtlar görünecek--> 
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to define a new <strong style="text-decoration:underline;color:red">Diyet Item</strong>.
+            </p><p>
+                You must define a <strong style="text-decoration:underline;color:red">Diyet Item</strong> for everything you sell, whether it's a physical product, a consumable or a service you offer to  customers.               
+            </p><p>
+                The <strong style="text-decoration:underline;color:red">Diyet Item</strong> form contains information to simplify the sale process: price, notes in the quotation, accounting data, procurement methods, etc.
+            </p>
+        </field>
+    </record>
+    
+    <!--Yeni bir "Meals" adında menü elemanı ekliyoruz-->
+    <record id="meal_action_diyetteyiz" model="ir.actions.act_window">
+        <field name="name">Meals</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.users.meal</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_type">form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to define a new <strong style="text-decoration:underline;color:red">menu</strong>.
+            </p>
+        </field>
+    </record>
+    
+    
+    <!--Meal modelimize yeni bir form görünümü ekliyoruz-->
+    <record id= "diyetteyiz_meal_form_view" model= "ir.ui.view">
+        <field name="model">res.users.meal</field>
+        <field name="arch" type="xml">
+             <form>
+                <group> <!--Grup şeklinde göstermek için (tasarım açısından)-->            
+                  <field name="name" style="text-decoration:underline"/>
+                  <field name="meal_date"/>
+                  <field name="user_id"/>
+                  <field name="totalcalories"/>
+                  <field name="largemeal"/>
+                  <field name="notes"/> 
+                </group>
+                <notebook>
+                    <page name="mealitems" string="Meal Items">   <!--Tab görünümü için-->                  
+                        <field name="item_ids" widget="one2many_list">
+                            <tree editable="bottom"> 
+                                <field name="item_id" />
+                                <field name="calories" />
+                                <field name="servings" />
+                                <field name="notes" />
+                            </tree>
+                        </field> 
+                    </page>                    
+                </notebook>
+             </form>
+        </field>
+    </record>
+    
+    <!--Meal için tree view ekledik-->
+    <record id= "diyetteyiz_meal_tree_view" model= "ir.ui.view">
+        <field name="model">res.users.meal</field>
+        <field name="arch" type="xml">
+             <tree>
+                 <field name="name"/>
+                 <field name="meal_date"/>            
+                 <field name="user_id"/>
+                 <field name="totalcalories" sum="Total Calories"/>          
+             </tree>
+        </field>
+    </record>
+      
+    <!--Menüdeki yeni elemana tıklanınca gerçekleşecek işlemler-->
+    <!--Diet Items menüsü-->
+    <menuitem action="product.product_template_action_diyetteyiz"
+            id="menu_product_template_action_diyetteyiz"
+            parent="base.menu_sales" sequence="14" />
+            <!--Bu menü sadece sales menüsünün altındaki menülere eklendi
+                Çünkü parent olarak sales menüsünü belirttik-->
+    
+    
+    <!--Meals menüsü-->
+    <menuitem action="meal_action_diyetteyiz"
+            id="menu_meal_action_diyetteyiz"
+            parent="base.menu_sales" sequence="15" />
+    
+    
+    <!--Yeni bir "Besinler" adında menü elemanını ekliyoruz-->
+    <record id="nutrient_action_diyetteyiz" model="ir.actions.act_window">
+        <field name="name">Besinler</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.nutrient</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_type">form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to define a new <strong style="text-decoration:underline;color:red">nutrient</strong>.
+            </p>
+        </field>
+    </record>
+    <!--Yeni bir "Besinler" adında menü elemanını ekliyoruz-->
+    <menuitem action="nutrient_action_diyetteyiz"
+            id="menu_nutrient_action_diyetteyiz"
+            parent="base.menu_sales" sequence="16" />
+    
+    
+    <template id="product.nutrition">
+        <t t-call="report.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="report.external_layout">
+                    <div class="page" >
+                        <div class="oe_structure" />
+                        <h1>Nutrition Report</h1>
+                        <h2>Product Name : <span t-field="o.name"/></h2>
+                        <p>Calories :<span t-field="o.calories"/></p>
+                        <p>Nutrition Score: <span t-field="o.nutrition_score"/></p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>       
+     
+    
+    <report 
+        id="diyetteyiz.product"
+        string="Nutrition Products"
+        model="product.template" 
+        report_type="qweb-pdf"
+        file="product.nutrition" 
+        name="product.nutrition" 
+    />
+    
+    
+    
+    </data>
+</openerp>
