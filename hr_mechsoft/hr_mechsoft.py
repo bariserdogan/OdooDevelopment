@@ -33,8 +33,7 @@ class employee_employee(models.Model):
                                    "employee_hobbies_rel",
                                    "emp_id",
                                    "hobbie_id",
-                                   "Hobbies Info"
-                                   )
+                                   string="Hobbies Info")
     
     responsible_id=fields.Many2one("res.partner","Responsible Person")
     email = fields.Char(related="responsible_id.email",string="Resp Email",)
@@ -67,7 +66,7 @@ class hobbies_detail(models.Model):
     _name="hobbies.detail"
     
     hobbie_id=fields.Char("Hobbie ID")
-    name="Name"
+    name=fields.Char("Name")
     
     
     
